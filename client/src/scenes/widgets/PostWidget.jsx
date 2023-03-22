@@ -74,7 +74,7 @@ const PostWidget = ({
           height="auto"
           alt="post"
           style={{ marginTop: "0.75rem" }}
-          src={`http://localhost:3001/assets/${picturePath}`}
+          src={`${process.env.REACT_APP_BASE_URL}/assets/${picturePath}`}
         />
       )}
       <FlexBetween mt="0.25rem" p="0 1rem 0.75rem 1rem">
