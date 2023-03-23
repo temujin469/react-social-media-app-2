@@ -16,6 +16,7 @@ import ImageUploader from "components/ImageUploader";
 import { useSelector } from "react-redux";
 import baseUrl from "utils/axios";
 import { useNavigate } from "react-router-dom";
+import Navbar from "scenes/navbar";
 
 const AddPost = () => {
   const [image, setImage] = useState(null);
@@ -79,17 +80,19 @@ const AddPost = () => {
 
   return (
     <Box>
-      <TextField
-        label="Гарчиг"
-        fullWidth
-        // onBlur={handleBlur}
-        onChange={(e) => setTitle(e.target.value)}
-        name="title"
-        // error={Boolean(touched.firstName) && Boolean(errors.firstName)}
-        // helperText={touched.firstName && errors.firstName}
-        sx={{ gridColumn: "span 2" }}
-      />
-      {/* <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
+      <Navbar title={"Нийтлэл оруулах"} elevated />
+      <Box padding="2rem 6%">
+        <TextField
+          label="Гарчиг"
+          fullWidth
+          // onBlur={handleBlur}
+          onChange={(e) => setTitle(e.target.value)}
+          name="title"
+          // error={Boolean(touched.firstName) && Boolean(errors.firstName)}
+          // helperText={touched.firstName && errors.firstName}
+          sx={{ gridColumn: "span 2" }}
+        />
+        {/* <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
         Шошго
       </p>
       <TagsInput
@@ -98,76 +101,77 @@ const AddPost = () => {
         name="Шошго"
         placeHolder="Шошго"
       /> */}
-      <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
-        Зураг
-      </p>
-      <ImageUploader image={image} setImage={setImage} />
-      <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
-        Агуулга
-      </p>
+        <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
+          Зураг
+        </p>
+        <ImageUploader image={image} setImage={setImage} />
+        <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
+          Агуулга
+        </p>
 
-      <div>
-        <ReactQuill
-          theme="snow"
-          modules={{
-            toolbar: [
-              [{ header: [1, 2, false] }],
-              ["bold", "italic", "underline", "strike", "blockquote"],
-              [
-                { list: "ordered" },
-                { list: "bullet" },
-                { indent: "-1" },
-                { indent: "+1" },
+        <div>
+          <ReactQuill
+            theme="snow"
+            modules={{
+              toolbar: [
+                [{ header: [1, 2, false] }],
+                ["bold", "italic", "underline", "strike", "blockquote"],
+                [
+                  { list: "ordered" },
+                  { list: "bullet" },
+                  { indent: "-1" },
+                  { indent: "+1" },
+                ],
+                ["link", "image"],
+                ["clean"],
               ],
-              ["link", "image"],
-              ["clean"],
-            ],
-          }}
-          value={description}
-          onChange={setDescription}
-        />
-      </div>
-      <Paper
-        elevation={3}
-        sx={{
-          position: "fixed",
-          bottom: "0",
-          left: "0",
-          right: "0",
-          height: "56px",
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <Box sx={{ padding: "1rem", position: "relative", flex: "1" }}>
-          <Button
-            // disabled={!post}
-            onClick={handlePost}
-            sx={{
-              color: palette.background.alt,
-              backgroundColor: palette.primary.main,
-              borderRadius: "3rem",
-              width: isNonMobileScreens ? "130px" : "100%",
             }}
-          >
-            Хуваалцах
-          </Button>
-          {loading && (
-            <CircularProgress
-              size={24}
-              color="primary"
+            value={description}
+            onChange={setDescription}
+          />
+        </div>
+        <Paper
+          elevation={3}
+          sx={{
+            position: "fixed",
+            bottom: "0",
+            left: "0",
+            right: "0",
+            height: "56px",
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Box sx={{ padding: "1rem", position: "relative", flex: "1" }}>
+            <Button
+              // disabled={!post}
+              onClick={handlePost}
               sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                marginTop: "-12px",
-                marginLeft: "-12px",
+                color: palette.background.alt,
+                backgroundColor: palette.primary.main,
+                borderRadius: "3rem",
+                width: isNonMobileScreens ? "130px" : "100%",
               }}
-            />
-          )}
-        </Box>
-      </Paper>
+            >
+              Хуваалцах
+            </Button>
+            {loading && (
+              <CircularProgress
+                size={24}
+                color="primary"
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                }}
+              />
+            )}
+          </Box>
+        </Paper>
+      </Box>
     </Box>
   );
 };

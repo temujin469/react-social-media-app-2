@@ -26,7 +26,7 @@ import { setMode, setLogout } from "state";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 
-const Navbar = ({ isHomePage }) => {
+const Navbar = ({ isHomePage, title, elevated }) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,10 +41,14 @@ const Navbar = ({ isHomePage }) => {
   const primaryLight = theme.palette.primary.light;
   const alt = theme.palette.background.alt;
 
-  const fullName = `${user.firstName} ${user.lastName}`;
+  const fullName = `${user?.firstName} ${user?.lastName}`;
 
   return (
-    <FlexBetween padding="1rem 6%" backgroundColor={alt}>
+    <FlexBetween
+      padding="1rem 6%"
+      backgroundColor={alt}
+      boxShadow={elevated && "3px 0 10px #00000011"}
+    >
       <FlexBetween gap="1.75rem">
         {isHomePage ? (
           <Typography
@@ -64,7 +68,7 @@ const Navbar = ({ isHomePage }) => {
         ) : (
           <FlexBetween gap="1rem">
             <ArrowBackIcon onClick={() => navigate(-1)} />
-            <Typography>Буцах</Typography>
+            <Typography>{title}</Typography>
           </FlexBetween>
         )}
 
@@ -192,9 +196,7 @@ const Navbar = ({ isHomePage }) => {
                 <MenuItem value={fullName}>
                   <Typography>{fullName}</Typography>
                 </MenuItem>
-                <MenuItem onClick={() => dispatch(setLogout())}>
-                  Log Out
-                </MenuItem>
+                <MenuItem onClick={() => dispatch(setLogout())}>Гарах</MenuItem>
               </Select>
             </FormControl>
           </FlexBetween>

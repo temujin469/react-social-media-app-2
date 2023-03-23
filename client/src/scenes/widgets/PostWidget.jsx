@@ -55,6 +55,7 @@ const PostWidget = ({
       // p="1.5rem 0 0.75rem 0"
       bgcolor={palette.background.alt}
       borderRadius="0.75rem"
+      boxShadow={"1rem 1rem 1rem #00000010"}
     >
       <Box p="1rem 1rem 0 1rem">
         <Friend
