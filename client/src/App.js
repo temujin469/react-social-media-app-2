@@ -12,6 +12,7 @@ import Layout from "components/Layout";
 import AddPost from "scenes/addPost";
 import MyFreinds from "scenes/myFriends";
 import Layout2 from "components/Layout2";
+import PostDetail from "scenes/post";
 
 function App() {
   const mode = useSelector((state) => state.mode);
@@ -37,6 +38,7 @@ function App() {
             </Route>
             <Route element={<Layout2 />}>
               <Route path="/addPost" element={<AddPost />} />
+              <Route path="/posts/:postId" element={<PostDetail />} />
             </Route>
           </Routes>
         </ThemeProvider>

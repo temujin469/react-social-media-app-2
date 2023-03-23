@@ -1,31 +1,17 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Skeleton, Typography, useTheme } from "@mui/material";
+import { getFriends } from "api/users";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setFriends } from "state";
+import { useQuery } from "react-query";
+import { useSelector } from "react-redux";
 
 const FriendListWidget = ({ userId }) => {
-  const dispatch = useDispatch();
   const { palette } = useTheme();
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
 
-  const getFriends = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/users/${userId}/friends`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
-  };
-
-  useEffect(() => {
-    getFriends();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { data: friends, isLoading } = useQuery(["friends"], () =>
+    getFriends({ userId, token })
+  );
 
   return (
     <WidgetWrapper>
@@ -38,15 +24,21 @@ const FriendListWidget = ({ userId }) => {
         Найзын жагсаалт
       </Typography>
       <Box display="flex" flexDirection="column" gap="1.5rem">
-        {friends?.map((friend) => (
-          <Friend
-            key={friend._id}
-            friendId={friend._id}
-            name={`${friend.firstName} ${friend.lastName}`}
-            subtitle={friend.occupation}
-            userPicturePath={friend.picturePath}
-          />
-        ))}
+        {!isLoading
+          ? friends?.map((friend) => (
+              <Friend
+                key={friend._id}
+                friendId={friend._id}
+                name={`${friend.firstName} ${friend.lastName}`}
+                subtitle={friend.occupation}
+                userPicturePath={friend.picturePath}
+              />
+            ))
+          : Array(2)
+              .fill(null)
+              .map((_, i) => (
+                <Skeleton key={i} variant="rounded" width={210} height={50} />
+              ))}
       </Box>
     </WidgetWrapper>
   );

@@ -4,12 +4,22 @@ import {
   FavoriteOutlined,
   ShareOutlined,
 } from "@mui/icons-material";
-import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Paper,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { patchLike } from "api/posts";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setPost } from "state";
+import { useMutation, useQueryClient } from "react-query";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const PostWidget = ({
   postId,
@@ -23,100 +33,109 @@ const PostWidget = ({
   comments,
 }) => {
   const [isComments, setIsComments] = useState(false);
-  const dispatch = useDispatch();
   const token = useSelector((state) => state.token);
   const loggedInUserId = useSelector((state) => state.user._id);
   const isLiked = Boolean(likes[loggedInUserId]);
   const likeCount = Object.keys(likes).length;
 
+  const navigate = useNavigate();
+
   const { palette } = useTheme();
   const main = palette.neutral.main;
   // const primary = palette.primary.main;
 
-  const patchLike = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/posts/${postId}/like`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: loggedInUserId }),
-      }
-    );
-    const updatedPost = await response.json();
-    dispatch(setPost({ post: updatedPost }));
+  const queryClient = useQueryClient();
+
+  const patchLikeMutation = useMutation(patchLike, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("posts");
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
+  const handleLike = () => {
+    patchLikeMutation.mutate({ token, userId: loggedInUserId, postId });
   };
 
   return (
-    <Box
-      m="2rem 0"
-      // p="1.5rem 0 0.75rem 0"
+    <Paper
+      elevation={1}
+      sx={{
+        borderRadius: "0.75rem",
+      }}
       bgcolor={palette.background.alt}
-      borderRadius="0.75rem"
-      boxShadow={"1rem 1rem 1rem #00000010"}
     >
-      <Box p="1rem 1rem 0 1rem">
-        <Friend
-          friendId={postUserId}
-          name={name}
-          subtitle={location}
-          userPicturePath={userPicturePath}
-        />
-        <Typography color={main} sx={{ mt: "1rem" }}>
-          {title}
-        </Typography>
-      </Box>
+      <Box m="2rem 0">
+        <Box>
+          <Box p="1rem 1rem 0 1rem">
+            <Friend
+              friendId={postUserId}
+              name={name}
+              subtitle={location}
+              userPicturePath={userPicturePath}
+            />
+          </Box>
 
-      {picturePath && (
-        <img
-          width="100%"
-          height="auto"
-          alt="post"
-          style={{ marginTop: "0.75rem" }}
-          src={`${process.env.REACT_APP_BASE_URL}/assets/${picturePath}`}
-        />
-      )}
-      <FlexBetween mt="0.25rem" p="0 1rem 0.75rem 1rem">
-        <FlexBetween gap="1rem">
-          <FlexBetween gap="0.3rem">
-            <IconButton onClick={patchLike}>
-              {isLiked ? (
-                <FavoriteOutlined sx={{ color: "#FF1E56" }} />
-              ) : (
-                <FavoriteBorderOutlined />
-              )}
-            </IconButton>
-            <Typography>{likeCount}</Typography>
-          </FlexBetween>
-
-          <FlexBetween gap="0.3rem">
-            <IconButton onClick={() => setIsComments(!isComments)}>
-              <ChatBubbleOutlineOutlined />
-            </IconButton>
-            <Typography>{comments.length}</Typography>
-          </FlexBetween>
-        </FlexBetween>
-
-        <IconButton>
-          <ShareOutlined />
-        </IconButton>
-      </FlexBetween>
-      {isComments && (
-        <Box mt="0.5rem" p="0 1rem 1rem 1rem">
-          {comments?.map((comment, i) => (
-            <Box key={`${name}-${i}`}>
-              <Divider />
-              <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
-                {comment}
-              </Typography>
-            </Box>
-          ))}
-          <Divider />
+          <Button
+            variant="text"
+            onClick={() => navigate(`/posts/${postId}`)}
+            sx={{
+              padding: "0.50rem 1rem 1rem 1rem",
+              marginTop: "1rem",
+              textAlign: "start",
+              textTransform: "none",
+              fontSize: "17px",
+            }}
+          >
+            <Typography color={main}>{title}</Typography>
+          </Button>
         </Box>
-      )}
-    </Box>
+
+        {picturePath && (
+          <img width="100%" height="auto" alt="post" src={picturePath} />
+        )}
+        <FlexBetween p="0.50rem 1rem 0.50rem 1rem">
+          <FlexBetween gap="1rem">
+            <FlexBetween gap="0.3rem">
+              <IconButton onClick={handleLike}>
+                {isLiked ? (
+                  <FavoriteOutlined sx={{ color: "#FF1E56" }} />
+                ) : (
+                  <FavoriteBorderOutlined />
+                )}
+              </IconButton>
+              <Typography>{likeCount}</Typography>
+            </FlexBetween>
+
+            <FlexBetween gap="0.3rem">
+              <IconButton onClick={() => setIsComments(!isComments)}>
+                <ChatBubbleOutlineOutlined />
+              </IconButton>
+              <Typography>{comments.length}</Typography>
+            </FlexBetween>
+          </FlexBetween>
+
+          <IconButton>
+            <ShareOutlined />
+          </IconButton>
+        </FlexBetween>
+        {isComments && (
+          <Box mt="0.5rem" p="0 1rem 1rem 1rem">
+            {comments?.map((comment, i) => (
+              <Box key={`${name}-${i}`}>
+                <Divider />
+                <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
+                  {comment}
+                </Typography>
+              </Box>
+            ))}
+            <Divider />
+          </Box>
+        )}
+      </Box>
+    </Paper>
   );
 };
 

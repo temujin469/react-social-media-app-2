@@ -28,16 +28,16 @@ const MyPostWidget = ({ picturePath }) => {
 
   return (
     <WidgetWrapper>
-      <FlexBetween gap="1.5rem">
+      <FlexBetween gap="1rem">
         <UserImage image={picturePath} />
         <InputBase
           placeholder="Юу бодож байна..."
           onClick={() => navigate("/addPost")}
           // onChange={(e) => setPost(e.target.value)}
           sx={{
-            width: "100%",
             backgroundColor: palette.neutral.light,
             borderRadius: "2rem",
+            flex: "1",
             padding: "1rem 2rem",
           }}
         />

@@ -26,7 +26,7 @@ import { setMode, setLogout } from "state";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 
-const Navbar = ({ isHomePage, title, elevated }) => {
+const Navbar = ({ isHomePage, title }) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ const Navbar = ({ isHomePage, title, elevated }) => {
     <FlexBetween
       padding="1rem 6%"
       backgroundColor={alt}
-      boxShadow={elevated && "3px 0 10px #00000011"}
+      borderBottom="solid 1px #0202023b"
     >
       <FlexBetween gap="1.75rem">
         {isHomePage ? (

@@ -4,16 +4,23 @@ import {
   LocationOnOutlined,
   WorkOutlineOutlined,
 } from "@mui/icons-material";
-import { Box, Typography, Divider, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Divider,
+  useTheme,
+  Skeleton,
+  Stack,
+} from "@mui/material";
 import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import { getUser } from "api/users";
 
 const UserWidget = ({ userId, picturePath }) => {
-  const [user, setUser] = useState(null);
   const { palette } = useTheme();
   const navigate = useNavigate();
   const token = useSelector((state) => state.token);
@@ -21,24 +28,21 @@ const UserWidget = ({ userId, picturePath }) => {
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
 
-  const getUser = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/users/${userId}`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      }
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery(["user"], () => getUser({ userId, token }));
+
+  if (isLoading && !error) {
+    return (
+      <WidgetWrapper>
+        <Stack spacing={1}>
+          <Skeleton variant="rounded" width={210} height={50} />
+          <Skeleton variant="rounded" width={210} height={100} />
+        </Stack>
+      </WidgetWrapper>
     );
-    const data = await response.json();
-    setUser(data);
-  };
-
-  useEffect(() => {
-    getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!user) {
-    return null;
   }
 
   const {

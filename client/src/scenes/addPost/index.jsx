@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "react-query";
 // import { toast } from "react-hot-toast";
 import "react-quill/dist/quill.snow.css";
 import {
+  Backdrop,
   Box,
   Button,
   CircularProgress,
@@ -41,8 +42,8 @@ const AddPost = () => {
   // };
 
   const addPostMutation = useMutation(
-    async (formData) => {
-      return baseUrl.post("/posts", formData, {
+    async (body) => {
+      return baseUrl.post("/posts", body, {
         headers: { Authorization: `Bearer ${token}` },
       });
     },
@@ -66,21 +67,22 @@ const AddPost = () => {
 
   const handlePost = () => {
     setLoading(true);
-    const formData = new FormData();
-    formData.append("userId", _id);
-    formData.append("description", description);
-    formData.append("title", title);
-    if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
-    }
+    // const formData = new FormData();
+    // formData.append("userId", _id);
+    // formData.append("description", description);
+    // formData.append("title", title);
+    // if (image) {
+    //   formData.append("file", image);
+    // }
 
-    addPostMutation.mutate(formData);
+    const body = { userId: _id, description, title, image };
+
+    addPostMutation.mutate(body);
   };
 
   return (
     <Box>
-      <Navbar title={"Нийтлэл оруулах"} elevated />
+      <Navbar title={"Нийтлэл оруулах"} />
       <Box padding="2rem 6%">
         <TextField
           label="Гарчиг"
@@ -145,7 +147,7 @@ const AddPost = () => {
         >
           <Box sx={{ padding: "1rem", position: "relative", flex: "1" }}>
             <Button
-              // disabled={!post}
+              disabled={!title}
               onClick={handlePost}
               sx={{
                 color: palette.background.alt,
@@ -156,22 +158,15 @@ const AddPost = () => {
             >
               Хуваалцах
             </Button>
-            {loading && (
-              <CircularProgress
-                size={24}
-                color="primary"
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  marginTop: "-12px",
-                  marginLeft: "-12px",
-                }}
-              />
-            )}
           </Box>
         </Paper>
       </Box>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
   );
 };

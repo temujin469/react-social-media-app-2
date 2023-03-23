@@ -10,8 +10,7 @@ function Layout() {
 
   return (
     <Box bgcolor={palette.background.default}>
-      <Navbar isHomePage elevated />
-
+      <Navbar isHomePage />
       <Box width="100%" padding="2rem 6%">
         <div className="pb-10">
           <Outlet />

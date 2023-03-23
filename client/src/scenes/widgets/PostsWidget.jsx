@@ -1,61 +1,38 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setPosts } from "state";
+import { Box, Skeleton } from "@mui/material";
+import { getAllPost } from "api/posts";
+import { useQuery } from "react-query";
+import { useSelector } from "react-redux";
 import PostWidget from "./PostWidget";
 
 const PostsWidget = ({ userId, isProfile = false }) => {
-  const dispatch = useDispatch();
-  const posts = useSelector((state) => state.posts);
   const token = useSelector((state) => state.token);
 
-  const [loading, setLoading] = useState(false);
+  const {
+    data: posts,
+    isLoading,
+    error,
+  } = useQuery(["posts", isProfile], () =>
+    getAllPost({ userId, token, isProfile })
+  );
 
-  const getPosts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/posts`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      setLoading(false);
-
-      dispatch(setPosts({ posts: data }));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getUserPosts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/posts/${userId}/posts`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await response.json();
-      setLoading(false);
-      dispatch(setPosts({ posts: data }));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    if (isProfile) {
-      getUserPosts();
-    } else {
-      getPosts();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // console.log(posts);
 
   return (
     <>
-      {!posts && loading ? (
-        <p>loading...</p>
+      {isLoading && !error ? (
+        <div>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ margin: 1 }}>
+              <Skeleton variant="circular" height={"60px"} width="60px" />
+            </Box>
+            <Box sx={{ width: "100%" }}>
+              <Skeleton width="100%" height="60px" />
+            </Box>
+          </Box>
+          <Skeleton variant="rectangular" width="100%">
+            <div style={{ paddingTop: "57%" }} />
+          </Skeleton>
+        </div>
       ) : (
         posts?.map(
           ({

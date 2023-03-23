@@ -1,10 +1,13 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import uploadImage from "../utils/uploadImage.js";
 
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, picturePath, title } = req.body;
+    const { userId, description, image, title } = req.body;
+    const photoUrl = await uploadImage(image);
+
     const user = await User.findById(userId);
     const newPost = new Post({
       userId,
@@ -14,7 +17,7 @@ export const createPost = async (req, res) => {
       title,
       description,
       userPicturePath: user.picturePath,
-      picturePath,
+      picturePath: photoUrl,
       likes: {},
       comments: [],
     });
@@ -30,7 +33,16 @@ export const createPost = async (req, res) => {
 /* READ */
 export const getFeedPosts = async (req, res) => {
   try {
-    const post = await Post.find();
+    const posts = await Post.find();
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
+export const getPost = async (req, res) => {
+  try {
+    const post = await Post.findOne({ _id: req.params.id });
     res.status(200).json(post);
   } catch (err) {
     res.status(404).json({ message: err.message });

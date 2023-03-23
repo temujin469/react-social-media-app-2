@@ -15,7 +15,7 @@ function ImageUploader({ image: photo, setImage }) {
     // console.log("data==>", imageList[0]?.data_url);
 
     setImages(imageList);
-    setImage(imageList[0]?.file);
+    setImage(imageList[0]?.data_url);
   };
   return (
     <ImageUploading

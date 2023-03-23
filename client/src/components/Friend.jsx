@@ -1,16 +1,16 @@
 import { PersonAddOutlined, PersonRemoveOutlined } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import { getFriends, patchFriend } from "api/users";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setFriends } from "state";
 import FlexBetween from "./FlexBetween";
+import UserImage from "./UserImage";
 
 const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { _id } = useSelector((state) => state.user);
+  const { _id: userId } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -18,38 +18,37 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const main = palette.neutral.main;
   const medium = palette.neutral.medium;
 
+  const { data: friends } = useQuery(["friends"], () =>
+    getFriends({ userId, token })
+  );
   const isFriend = friends?.find((friend) => friend._id === friendId);
 
-  const patchFriend = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/users/${_id}/${friendId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
+  const queryClient = useQueryClient();
+
+  const patchFriendMutation = useMutation(patchFriend, {
+    onSuccess: () => {
+      // setLoading(false);
+      // dispatch(setPosts({ posts }));
+
+      queryClient.invalidateQueries("friends");
+      // clearState();
+      // toast.success("Амжилттай нийтэллээ");
+    },
+    onError: (err) => {
+      // setLoading(false);
+      // toast.error(catchResponseErr(err));
+      console.log(err);
+    },
+  });
+
+  const handleFriend = () => {
+    patchFriendMutation.mutate({ userId, token, friendId });
   };
 
   return (
     <FlexBetween>
       <FlexBetween gap="1rem">
-        <Box width={"55px"} height={"55px"}>
-          <img
-            style={{
-              objectFit: "cover",
-              borderRadius: "50%",
-              height: "55px",
-              width: "55px",
-            }}
-            alt="user"
-            src={`http://localhost:3001/assets/${userPicturePath}`}
-          />
-        </Box>
+        <UserImage image={userPicturePath} />
         <Box
           onClick={() => {
             navigate(`/profile/${friendId}`);
@@ -75,7 +74,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
         </Box>
       </FlexBetween>
       <IconButton
-        onClick={() => patchFriend()}
+        onClick={handleFriend}
         sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
       >
         {isFriend ? (
