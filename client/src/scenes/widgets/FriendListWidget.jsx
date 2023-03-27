@@ -9,9 +9,11 @@ const FriendListWidget = ({ userId }) => {
   const { palette } = useTheme();
   const token = useSelector((state) => state.token);
 
-  const { data: friends, isLoading } = useQuery(["friends"], () =>
+  const { data: friends, isLoading } = useQuery(["friends", userId], () =>
     getFriends({ userId, token })
   );
+
+  // console.log(friends);
 
   return (
     <WidgetWrapper>

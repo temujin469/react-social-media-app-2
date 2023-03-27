@@ -12,24 +12,31 @@ import {
   Button,
   useMediaQuery,
 } from "@mui/material";
+import { getCurrentUser } from "api/users";
 import FlexBetween from "components/FlexBetween";
 import UserImage from "components/UserImage";
 import WidgetWrapper from "components/WidgetWrapper";
-// import { setPosts } from "state";
+import { useQuery } from "react-query";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const MyPostWidget = ({ picturePath }) => {
+const MyPostWidget = () => {
   const { palette } = useTheme();
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
+  const token = useSelector((state) => state.token);
+
+  const { data: currrentUser } = useQuery(["user"], () =>
+    getCurrentUser({ token })
+  );
 
   const navigate = useNavigate();
 
   return (
     <WidgetWrapper>
       <FlexBetween gap="1rem">
-        <UserImage image={picturePath} />
+        <UserImage image={currrentUser?.picturePath} />
         <InputBase
           placeholder="Юу бодож байна..."
           onClick={() => navigate("/addPost")}

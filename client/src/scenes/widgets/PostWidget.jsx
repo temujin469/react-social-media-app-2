@@ -15,30 +15,23 @@ import {
 } from "@mui/material";
 import { patchLike } from "api/posts";
 import FlexBetween from "components/FlexBetween";
-import Friend from "components/Friend";
+import PostHead from "components/UserInfo";
+import UsersListDrawer from "components/UsersListDrawer";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const PostWidget = ({
-  postId,
-  postUserId,
-  name,
-  title,
-  location,
-  picturePath,
-  userPicturePath,
-  likes,
-  comments,
-}) => {
-  const [isComments, setIsComments] = useState(false);
+const PostWidget = ({ post }) => {
+  // const [isComments, setIsComments] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
   const token = useSelector((state) => state.token);
-  const loggedInUserId = useSelector((state) => state.user._id);
-  const isLiked = Boolean(likes[loggedInUserId]);
-  const likeCount = Object.keys(likes).length;
-
+  const userId = useSelector((state) => state.user._id);
+  const isLiked = post.likes?.find((like) => like === userId);
+  const likeCount = post.likes?.length;
   const navigate = useNavigate();
+
+  // console.log(post);
 
   const { palette } = useTheme();
   const main = palette.neutral.main;
@@ -49,6 +42,7 @@ const PostWidget = ({
   const patchLikeMutation = useMutation(patchLike, {
     onSuccess: () => {
       queryClient.invalidateQueries("posts");
+      queryClient.invalidateQueries("like");
     },
     onError: (err) => {
       console.log(err);
@@ -56,7 +50,7 @@ const PostWidget = ({
   });
 
   const handleLike = () => {
-    patchLikeMutation.mutate({ token, userId: loggedInUserId, postId });
+    patchLikeMutation.mutate({ token, postId: post._id });
   };
 
   return (
@@ -70,58 +64,90 @@ const PostWidget = ({
       <Box m="2rem 0">
         <Box>
           <Box p="1rem 1rem 0 1rem">
-            <Friend
-              friendId={postUserId}
-              name={name}
-              subtitle={location}
-              userPicturePath={userPicturePath}
+            <PostHead
+              userId={post.user._id}
+              name={post.user.firstName}
+              subtitle={post.user.email}
+              userPicturePath={post.user.picturePath}
             />
           </Box>
 
           <Button
             variant="text"
-            onClick={() => navigate(`/posts/${postId}`)}
+            onClick={() => navigate(`/posts/${post._id}/${post.user._id}`)}
             sx={{
               padding: "0.50rem 1rem 1rem 1rem",
               marginTop: "1rem",
               textAlign: "start",
               textTransform: "none",
               fontSize: "17px",
+              borderRadius: "0",
+              width: "100%",
+              justifyContent: "start",
             }}
           >
-            <Typography color={main}>{title}</Typography>
+            <Typography color={main}>{post.title}</Typography>
           </Button>
         </Box>
 
-        {picturePath && (
-          <img width="100%" height="auto" alt="post" src={picturePath} />
+        {post.picturePath && (
+          <img width="100%" height="auto" alt="post" src={post.picturePath} />
         )}
-        <FlexBetween p="0.50rem 1rem 0.50rem 1rem">
-          <FlexBetween gap="1rem">
-            <FlexBetween gap="0.3rem">
-              <IconButton onClick={handleLike}>
-                {isLiked ? (
-                  <FavoriteOutlined sx={{ color: "#FF1E56" }} />
-                ) : (
-                  <FavoriteBorderOutlined />
-                )}
-              </IconButton>
-              <Typography>{likeCount}</Typography>
-            </FlexBetween>
+        <Box p="0 1rem 0 1rem ">
+          <UsersListDrawer
+            postId={post._id}
+            open={openDrawer}
+            setOpen={setOpenDrawer}
+          />
+          <FlexBetween>
+            <Box>
+              {post.likes.length ? (
+                <FlexBetween>
+                  <IconButton onClick={() => setOpenDrawer(true)}>
+                    <FavoriteBorderOutlined fontSize="small" />
+                  </IconButton>
+                  <Typography>{likeCount}</Typography>
+                </FlexBetween>
+              ) : null}
+            </Box>
 
-            <FlexBetween gap="0.3rem">
-              <IconButton onClick={() => setIsComments(!isComments)}>
-                <ChatBubbleOutlineOutlined />
+            <FlexBetween>
+              <Typography>{post.comments.length}</Typography>
+              <IconButton>
+                <ChatBubbleOutlineOutlined fontSize="small" />
               </IconButton>
-              <Typography>{comments.length}</Typography>
             </FlexBetween>
           </FlexBetween>
+          <Divider />
+          <FlexBetween p="0.50rem 0 0.50rem 0">
+            <FlexBetween gap="1rem">
+              <FlexBetween>
+                <IconButton onClick={handleLike}>
+                  {isLiked ? (
+                    <FavoriteOutlined sx={{ color: "#FF1E56" }} />
+                  ) : (
+                    <FavoriteBorderOutlined />
+                  )}
+                </IconButton>
+                <Typography>Зүрх</Typography>
+              </FlexBetween>
 
-          <IconButton>
-            <ShareOutlined />
-          </IconButton>
-        </FlexBetween>
-        {isComments && (
+              <FlexBetween>
+                <IconButton
+                //  onClick={() => setIsComments(!isComments)}
+                >
+                  <ChatBubbleOutlineOutlined />
+                </IconButton>
+                <Typography>Сэтгэгдэл</Typography>
+              </FlexBetween>
+            </FlexBetween>
+
+            <IconButton>
+              <ShareOutlined />
+            </IconButton>
+          </FlexBetween>
+        </Box>
+        {/* {isComments && (
           <Box mt="0.5rem" p="0 1rem 1rem 1rem">
             {comments?.map((comment, i) => (
               <Box key={`${name}-${i}`}>
@@ -133,7 +159,7 @@ const PostWidget = ({
             ))}
             <Divider />
           </Box>
-        )}
+        )} */}
       </Box>
     </Paper>
   );

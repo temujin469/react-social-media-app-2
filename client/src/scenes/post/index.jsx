@@ -1,32 +1,40 @@
-import { Box } from "@mui/material";
-import { getPost } from "api/posts";
+import { Box, Divider, useMediaQuery } from "@mui/material";
 import React from "react";
-import { useQuery } from "react-query";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Navbar from "scenes/navbar";
+import AdvertWidget from "scenes/widgets/AdvertWidget";
+import PostDetailWidget from "scenes/widgets/PostDetailWidget";
 
 function PostDetail() {
   const { postId } = useParams();
-  const token = useSelector((state) => state.token);
-
-  const {
-    data: post,
-    isLoading,
-    error,
-  } = useQuery(["post", postId], () => getPost({ postId, token }));
+  const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
+  // const { userId } = useParams();
 
   return (
     <Box>
       <Navbar title="Буцах" />
-      <Box>
-        {!isLoading && !error ? (
-          <Box>
-            <div dangerouslySetInnerHTML={{ __html: post.description }}></div>
+      <Box
+        padding="0 1rem"
+        display={isNonMobileScreens ? "flex" : "block"}
+        gap="2rem"
+        justifyContent="center"
+      >
+        {isNonMobileScreens && (
+          <Box
+            flexBasis={isNonMobileScreens ? "26%" : undefined}
+            mt="2rem"
+            position="sticky"
+            top="2rem"
+            height="100vh"
+          >
+            <AdvertWidget />
           </Box>
-        ) : (
-          <p>Хайж байна...</p>
         )}
+
+        <Box flexBasis={isNonMobileScreens ? "42%" : undefined}>
+          <PostDetailWidget postId={postId} />
+          <Divider />
+        </Box>
       </Box>
     </Box>
   );

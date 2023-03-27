@@ -38,7 +38,7 @@ function App() {
             </Route>
             <Route element={<Layout2 />}>
               <Route path="/addPost" element={<AddPost />} />
-              <Route path="/posts/:postId" element={<PostDetail />} />
+              <Route path="/posts/:postId/:userId" element={<PostDetail />} />
             </Route>
           </Routes>
         </ThemeProvider>

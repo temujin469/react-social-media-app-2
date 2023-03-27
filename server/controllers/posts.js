@@ -1,86 +1,97 @@
+import asyncHandler from "express-async-handler";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 import uploadImage from "../utils/uploadImage.js";
 
 /* CREATE */
-export const createPost = async (req, res) => {
-  try {
-    const { userId, description, image, title } = req.body;
-    const photoUrl = await uploadImage(image);
+export const createPost = asyncHandler(async (req, res) => {
+  const { description, image, title } = req.body;
+  const userId = req.user.id;
+  const photoUrl = await uploadImage(image);
 
-    const user = await User.findById(userId);
-    const newPost = new Post({
-      userId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      location: user.location,
-      title,
-      description,
-      userPicturePath: user.picturePath,
-      picturePath: photoUrl,
-      likes: {},
-      comments: [],
-    });
-    await newPost.save();
+  const newPost = new Post({
+    user: userId,
+    title,
+    description,
+    picturePath: photoUrl,
+    likes: [],
+    comments: [],
+  });
+  await newPost.save();
 
-    const post = await Post.find();
-    res.status(201).json(post);
-  } catch (err) {
-    res.status(409).json({ message: err.message });
-  }
-};
+  res.status(201).json({
+    success: true,
+    message: "Амжилттай нийтлэлээ",
+  });
+});
 
 /* READ */
-export const getFeedPosts = async (req, res) => {
-  try {
-    const posts = await Post.find();
-    res.status(200).json(posts);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-};
+export const getFeedPosts = asyncHandler(async (req, res) => {
+  const posts = await Post.find()
+    .populate("user", "firstName lastName email picturePath")
+    .select("-friends -description");
+  res.status(200).json({
+    success: true,
+    data: posts,
+  });
+});
 
-export const getPost = async (req, res) => {
-  try {
-    const post = await Post.findOne({ _id: req.params.id });
-    res.status(200).json(post);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-};
+export const getPost = asyncHandler(async (req, res) => {
+  const post = await Post.findOne({ _id: req.params.id }).populate("user");
+  res.status(200).json({
+    success: true,
+    data: post,
+  });
+});
 
-export const getUserPosts = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const post = await Post.find({ userId });
-    res.status(200).json(post);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-};
+export const getUserPosts = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const post = await Post.find({ user: userId })
+    .populate("user", "firstName lastName email picturePath")
+    .select("-friends -description");
+  res.status(200).json({
+    success: true,
+    data: post,
+  });
+});
 
 /* UPDATE */
-export const likePost = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { userId } = req.body;
-    const post = await Post.findById(id);
-    const isLiked = post.likes.get(userId);
+export const likePost = asyncHandler(async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.user.id;
+  const post = await Post.findById(postId);
+  const isLiked = post.likes.find((like) => like.toString() === userId);
+  // console.log(isLiked);
 
-    if (isLiked) {
-      post.likes.delete(userId);
-    } else {
-      post.likes.set(userId, true);
-    }
-
-    const updatedPost = await Post.findByIdAndUpdate(
-      id,
-      { likes: post.likes },
+  if (isLiked) {
+    await Post.findByIdAndUpdate(
+      postId,
+      { $pull: { likes: userId } },
       { new: true }
     );
-
-    res.status(200).json(updatedPost);
-  } catch (err) {
-    res.status(404).json({ message: err.message });
+  } else {
+    await Post.findByIdAndUpdate(
+      postId,
+      { $push: { likes: userId } },
+      { new: true }
+    );
   }
-};
+
+  return res.status(200).json({
+    success: true,
+    message: "Амжилттай",
+  });
+});
+
+export const getLikeUsers = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const post = await Post.findById(id).populate(
+    "likes",
+    "firstName email lastName picturePath"
+  );
+
+  res.status(200).json({
+    success: true,
+    data: post.likes,
+  });
+});

@@ -30,7 +30,6 @@ const Navbar = ({ isHomePage, title }) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const router = useRouter()
   const user = useSelector((state) => state.user);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
@@ -121,7 +120,14 @@ const Navbar = ({ isHomePage, title }) => {
               <MenuItem value={fullName}>
                 <Typography>{fullName}</Typography>
               </MenuItem>
-              <MenuItem onClick={() => dispatch(setLogout())}>Гарах</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  dispatch(setLogout());
+                  navigate("/login");
+                }}
+              >
+                Гарах
+              </MenuItem>
             </Select>
           </FormControl>
         </FlexBetween>

@@ -1,15 +1,17 @@
-import { PersonRemoveOutlined } from "@mui/icons-material";
+import { PersonRemoveOutlined, PersonAddOutlined } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { patchFriend } from "api/users";
-import { useMutation, useQueryClient } from "react-query";
+import { getFriends, patchFriend } from "api/users";
+import { toast } from "react-hot-toast";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
 
-const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
+const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
-  const { _id: userId } = useSelector((state) => state.user);
+
+  const currentUser = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
 
   const { palette } = useTheme();
@@ -18,23 +20,39 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const main = palette.neutral.main;
   const medium = palette.neutral.medium;
 
+  const { data: friends } = useQuery(["friends", userId], () =>
+    getFriends({ userId: userId, token })
+  );
+  const isFriend = friends?.find((friend) => friend._id === currentUser._id);
+
+  const isMyPost = userId === currentUser._id;
   const queryClient = useQueryClient();
 
   const patchFriendMutation = useMutation(patchFriend, {
     onSuccess: () => {
       // setLoading(false);
+      if (!isFriend) {
+        toast.success("Найзууд болсон");
+      } else {
+        toast.success("Найзууд салсан");
+      }
 
       queryClient.invalidateQueries(["friends"]);
       queryClient.invalidateQueries(["user"]);
     },
     onError: (err) => {
       // setLoading(false);
+      // toast.success("Амжилттай нийтэллээ");
       console.log(err);
     },
   });
 
   const handleFriend = () => {
-    patchFriendMutation.mutate({ userId, token, friendId });
+    patchFriendMutation.mutate({
+      userId: currentUser._id,
+      token,
+      friendId: userId,
+    });
   };
 
   return (
@@ -43,8 +61,7 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
         <UserImage image={userPicturePath} />
         <Box
           onClick={() => {
-            navigate(`/profile/${friendId}`);
-            navigate(0);
+            navigate(`/profile/${userId}`);
           }}
         >
           <Typography
@@ -65,14 +82,20 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
           </Typography>
         </Box>
       </FlexBetween>
-      <IconButton
-        onClick={handleFriend}
-        sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
-      >
-        <PersonRemoveOutlined sx={{ color: primaryDark }} />
-      </IconButton>
+      {!isMyPost && (
+        <IconButton
+          onClick={handleFriend}
+          sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
+        >
+          {isFriend ? (
+            <PersonRemoveOutlined sx={{ color: primaryDark }} />
+          ) : (
+            <PersonAddOutlined sx={{ color: primaryDark }} />
+          )}
+        </IconButton>
+      )}
     </FlexBetween>
   );
 };
 
-export default Friend;
+export default UserInfo;

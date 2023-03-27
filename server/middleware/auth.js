@@ -1,21 +1,25 @@
 import jwt from "jsonwebtoken";
+import asyncHandler from "express-async-handler";
+import MyError from "../utils/MyError.js";
 
-export const verifyToken = async (req, res, next) => {
-  try {
-    let token = req.header("Authorization");
-
-    if (!token) {
-      return res.status(403).send("Access Denied");
-    }
-
-    if (token.startsWith("Bearer ")) {
-      token = token.slice(7, token.length).trimLeft();
-    }
-
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+export const verifyToken = asyncHandler(async (req, res, next) => {
+  if (!req.headers.authorization) {
+    throw new MyError(
+      "Та эхлээд логин хийнэ үү. Authorization header-ээр токеноо дамжуулна уу.",
+      401
+    );
   }
-};
+
+  const token = req.headers.authorization.split(" ")[1];
+
+  if (!token) {
+    throw new MyError("Токен байхгүй байна.", 401);
+  }
+
+  const tokenObj = jwt.verify(token, process.env.JWT_SECRET);
+
+  console.log("tokenObj==>", tokenObj);
+  req.user = tokenObj;
+
+  next();
+});

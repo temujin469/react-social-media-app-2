@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import authReducer from "./state";
+import { Toaster } from "react-hot-toast";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import {
@@ -39,6 +40,7 @@ root.render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistStore(store)}>
         <QueryClientProvider client={queryClient}>
+          <Toaster position="top-center" reverseOrder={false} />
           <App />
         </QueryClientProvider>
       </PersistGate>

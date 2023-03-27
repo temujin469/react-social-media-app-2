@@ -7,14 +7,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state";
-import Dropzone from "react-dropzone";
-import FlexBetween from "components/FlexBetween";
+import ImageUploader from "components/ImageUploader";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("шаардлагатай"),
@@ -23,7 +21,7 @@ const registerSchema = yup.object().shape({
   password: yup.string().required("заавал оруулан"),
   location: yup.string().required("шаардлагатай"),
   occupation: yup.string().required("шаардлагатай"),
-  picture: yup.string().required("шаардлагатай"),
+  image: yup.string().required("шаардлагатай"),
 });
 
 const loginSchema = yup.object().shape({
@@ -38,7 +36,7 @@ const initialValuesRegister = {
   password: "",
   location: "",
   occupation: "",
-  picture: "",
+  image: "",
 };
 
 const initialValuesLogin = {
@@ -57,40 +55,40 @@ const Form = () => {
 
   const register = async (values, onSubmitProps) => {
     // this allows us to send form info with image
-    const formData = new FormData();
-    for (let value in values) {
-      formData.append(value, values[value]);
-    }
-    formData.append("picturePath", values.picture.name);
+    // console.log(values);
 
     const savedUserResponse = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/auth/register`,
+      `${process.env.REACT_APP_BASE_URL}/api/v1/auth/register`,
       {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
       }
     );
-    const savedUser = await savedUserResponse.json();
+    const res = await savedUserResponse.json();
     onSubmitProps.resetForm();
 
-    if (savedUser) {
+    if (res.success) {
       setPageType("login");
     }
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
-    const loggedIn = await loggedInResponse.json();
+    const loggedInResponse = await fetch(
+      `${process.env.REACT_APP_BASE_URL}/api/v1/auth/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      }
+    );
+    const { data } = await loggedInResponse.json();
     onSubmitProps.resetForm();
-    if (loggedIn) {
+    if (data) {
       dispatch(
         setLogin({
-          user: loggedIn.user,
-          token: loggedIn.token,
+          user: data,
+          token: data.token,
         })
       );
       navigate("/");
@@ -179,11 +177,11 @@ const Form = () => {
                   borderRadius="5px"
                   p="1rem"
                 >
-                  <Dropzone
+                  {/* <Dropzone
                     acceptedFiles=".jpg,.jpeg,.png"
                     multiple={false}
                     onDrop={(acceptedFiles) =>
-                      setFieldValue("picture", acceptedFiles[0])
+                      setFieldValue("image", acceptedFiles[0])
                     }
                   >
                     {({ getRootProps, getInputProps }) => (
@@ -204,7 +202,12 @@ const Form = () => {
                         )}
                       </Box>
                     )}
-                  </Dropzone>
+                  </Dropzone> */}
+                  <ImageUploader
+                    onChange={(acceptedFile) =>
+                      setFieldValue("image", acceptedFile)
+                    }
+                  />
                 </Box>
               </>
             )}

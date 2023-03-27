@@ -3,25 +3,25 @@ import ImageUploading from "react-images-uploading";
 // import { useTheme } from "@mui/material";
 import { Close, RefreshOutlined, ImageOutlined } from "@mui/icons-material";
 
-function ImageUploader({ image: photo, setImage }) {
+function ImageUploader({ onChange }) {
   const [images, setImages] = useState([]);
   const maxNumber = 1;
 
   // const { palette } = useTheme();
 
-  const onChange = async (imageList, addUpdateIndex) => {
+  const onImageChange = async (imageList, addUpdateIndex) => {
     // data for submit
     // console.log("iamgelist==>", imageList[0]);
     // console.log("data==>", imageList[0]?.data_url);
 
     setImages(imageList);
-    setImage(imageList[0]?.data_url);
+    onChange(imageList[0]?.data_url);
   };
   return (
     <ImageUploading
       multiple
       value={images}
-      onChange={onChange}
+      onChange={onImageChange}
       maxNumber={maxNumber}
       dataURLKey="data_url"
     >

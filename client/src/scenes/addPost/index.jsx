@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import { useMutation, useQueryClient } from "react-query";
-// import { toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import "react-quill/dist/quill.snow.css";
 import {
   Backdrop,
@@ -21,25 +21,17 @@ import Navbar from "scenes/navbar";
 
 const AddPost = () => {
   const [image, setImage] = useState(null);
-  const { _id } = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   // const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  // console.log(image);
-  // const dispatch = useDispatch();
 
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const { palette } = useTheme();
 
   const queryClient = useQueryClient();
-
-  // const clearState = () => {
-  //   setTitle("");
-  //   setContent("");
-  // };
 
   const addPostMutation = useMutation(
     async (body) => {
@@ -50,16 +42,14 @@ const AddPost = () => {
     {
       onSuccess: () => {
         setLoading(false);
-        // dispatch(setPosts({ posts }));
 
         queryClient.invalidateQueries("posts");
         navigate("/");
-        // clearState();
-        // toast.success("Амжилттай нийтэллээ");
+        toast.success("Амжилттай нийтэллээ");
       },
       onError: (err) => {
         setLoading(false);
-        // toast.error(catchResponseErr(err));
+        toast.error("Алдаа гарлаа");
         console.log(err);
       },
     }
@@ -67,15 +57,8 @@ const AddPost = () => {
 
   const handlePost = () => {
     setLoading(true);
-    // const formData = new FormData();
-    // formData.append("userId", _id);
-    // formData.append("description", description);
-    // formData.append("title", title);
-    // if (image) {
-    //   formData.append("file", image);
-    // }
 
-    const body = { userId: _id, description, title, image };
+    const body = { description, title, image };
 
     addPostMutation.mutate(body);
   };
@@ -106,7 +89,7 @@ const AddPost = () => {
         <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
           Зураг
         </p>
-        <ImageUploader image={image} setImage={setImage} />
+        <ImageUploader onChange={setImage} />
         <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
           Агуулга
         </p>
