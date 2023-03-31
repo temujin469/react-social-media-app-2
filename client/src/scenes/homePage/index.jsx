@@ -23,7 +23,7 @@ const HomePage = () => {
   return (
     <Box maxWidth="1500px" mx="auto">
       <Grid
-        container
+        container={sm}
         padding={md ? "1rem" : "0 0 1rem"}
         md={12}
         sm={12}
@@ -53,7 +53,7 @@ const HomePage = () => {
         )}
 
         <Grid item sx={1} sm={7} md={6} pl={sm && "1rem"}>
-          <Box maxWidth="600px" mx="auto" width="100%">
+          <Box maxWidth="600px" mx="auto">
             <MyPostWidget tab={tab} onChange={handleChangeTab} />
             <Box px={md ? "0" : "1rem"}>
               <TabPanel value={tab} index={0}>
