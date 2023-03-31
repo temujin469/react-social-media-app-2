@@ -34,13 +34,12 @@ function ImageUploader({ onChange }) {
         isDragging,
         dragProps,
       }) => (
-        // write your building UI
         <div className="upload__image-wrapper">
           <button
-            className="rounded-md cursor-pointer border-dotted border-2 w-[200px] h-[200px] flex justify-center items-center"
-            // style={{
-            //   borderColor: isDragging ? "red" : currentColor,
-            // }}
+            className="rounded-md cursor-pointer border w-full min-h-[52.7px] flex justify-center items-center"
+            style={{
+              borderWidth: !imageList.length ? "1px" : "0",
+            }}
             onClick={!imageList.length && onImageUpload}
             {...dragProps}
           >

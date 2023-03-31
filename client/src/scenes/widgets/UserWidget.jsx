@@ -1,6 +1,5 @@
 import {
   ManageAccountsOutlined,
-  EditOutlined,
   LocationOnOutlined,
   WorkOutlineOutlined,
 } from "@mui/icons-material";
@@ -20,7 +19,7 @@ import { useQuery } from "react-query";
 import { getUser } from "api/users";
 import { useSelector } from "react-redux";
 
-const UserWidget = ({ userId }) => {
+const UserWidget = ({ userId, hideHead }) => {
   const { palette } = useTheme();
   const navigate = useNavigate();
   const dark = palette.neutral.dark;
@@ -46,37 +45,41 @@ const UserWidget = ({ userId }) => {
       ) : (
         user && (
           <>
-            {/* FIRST ROW */}
-            <FlexBetween
-              gap="0.5rem"
-              pb="1.1rem"
-              onClick={() => navigate(`/profile/${user._id}`)}
-            >
-              <FlexBetween gap="1rem">
-                <UserImage image={user.picturePath} />
-                <Box>
-                  <Typography
-                    variant="h4"
-                    color={dark}
-                    fontWeight="500"
-                    sx={{
-                      "&:hover": {
-                        color: palette.primary.light,
-                        cursor: "pointer",
-                      },
-                    }}
-                  >
-                    {user.firstName} {user.lastName}
-                  </Typography>
-                  <Typography color={medium}>
-                    {user.friends.length} найзууд
-                  </Typography>
-                </Box>
-              </FlexBetween>
-              <ManageAccountsOutlined />
-            </FlexBetween>
+            {!hideHead && (
+              <div>
+                {/* FIRST ROW */}
+                <FlexBetween
+                  gap="0.5rem"
+                  pb="1.1rem"
+                  onClick={() => navigate(`/profile/${user._id}`)}
+                >
+                  <FlexBetween gap="1rem">
+                    <UserImage image={user.picturePath} />
+                    <Box>
+                      <Typography
+                        variant="h4"
+                        color={dark}
+                        fontWeight="500"
+                        sx={{
+                          "&:hover": {
+                            color: palette.primary.light,
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        {user.firstName} {user.lastName}
+                      </Typography>
+                      <Typography color={medium}>
+                        {user.friends.length} найзууд
+                      </Typography>
+                    </Box>
+                  </FlexBetween>
+                  <ManageAccountsOutlined />
+                </FlexBetween>
 
-            <Divider />
+                <Divider />
+              </div>
+            )}
 
             {/* SECOND ROW */}
             <Box p="1rem 0">
@@ -135,7 +138,7 @@ const UserWidget = ({ userId }) => {
                     <Typography color={medium}>Олон нийтийн сүлжээ</Typography>
                   </Box>
                 </FlexBetween>
-                <EditOutlined sx={{ color: main }} />
+                {/* <EditOutlined sx={{ color: main }} /> */}
               </FlexBetween>
 
               <FlexBetween gap="1rem">
@@ -148,7 +151,7 @@ const UserWidget = ({ userId }) => {
                     <Typography color={medium}>Олон нийтийн сүлжээ</Typography>
                   </Box>
                 </FlexBetween>
-                <EditOutlined sx={{ color: main }} />
+                {/* <EditOutlined sx={{ color: main }} /> */}
               </FlexBetween>
             </Box>
           </>

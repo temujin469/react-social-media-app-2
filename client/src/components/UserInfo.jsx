@@ -1,6 +1,7 @@
 import { PersonRemoveOutlined, PersonAddOutlined } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { getFriends, patchFriend } from "api/users";
+import useToken from "hooks/useToken";
 import { toast } from "react-hot-toast";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSelector } from "react-redux";
@@ -12,7 +13,7 @@ const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
 
   const currentUser = useSelector((state) => state.user);
-  const token = useSelector((state) => state.token);
+  const token = useToken();
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -39,6 +40,7 @@ const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
 
       queryClient.invalidateQueries(["friends"]);
       queryClient.invalidateQueries(["user"]);
+      queryClient.invalidateQueries(["posts", token]);
     },
     onError: (err) => {
       // setLoading(false);

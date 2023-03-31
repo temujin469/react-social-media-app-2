@@ -7,7 +7,8 @@ import uploadImage from "../utils/uploadImage.js";
 export const createPost = asyncHandler(async (req, res) => {
   const { description, image, title } = req.body;
   const userId = req.user.id;
-  const photoUrl = await uploadImage(image);
+
+  const photoUrl = image ? await uploadImage(image) : undefined;
 
   const newPost = new Post({
     user: userId,
@@ -30,9 +31,14 @@ export const getFeedPosts = asyncHandler(async (req, res) => {
   const posts = await Post.find()
     .populate("user", "firstName lastName email picturePath")
     .select("-friends -description");
+  const allPosts = posts.map((post) => {
+    const isMy = Boolean(post._doc.user._id.toString() === req.user.id);
+    return { ...post._doc, isMy };
+  });
+  // console.log(allPosts);
   res.status(200).json({
     success: true,
-    data: posts,
+    data: allPosts,
   });
 });
 
@@ -46,12 +52,26 @@ export const getPost = asyncHandler(async (req, res) => {
 
 export const getUserPosts = asyncHandler(async (req, res) => {
   const { userId } = req.params;
-  const post = await Post.find({ user: userId })
+  const posts = await Post.find({ user: userId })
     .populate("user", "firstName lastName email picturePath")
     .select("-friends -description");
   res.status(200).json({
     success: true,
-    data: post,
+    data: posts,
+  });
+});
+
+export const getFriendsPosts = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const currentUser = await User.findOne({ _id: userId });
+  const posts = await Post.find({ user: { $in: currentUser.friends } })
+    .populate("user", "firstName lastName email picturePath")
+    .select("-friends -description");
+
+  res.status(200).json({
+    success: true,
+    data: posts,
   });
 });
 

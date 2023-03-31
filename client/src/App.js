@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import HomePage from "scenes/homePage";
 import LoginPage from "scenes/loginPage";
-import ProfilePage from "scenes/profilePage";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -13,6 +12,7 @@ import AddPost from "scenes/addPost";
 import MyFreinds from "scenes/myFriends";
 import Layout2 from "components/Layout2";
 import PostDetail from "scenes/post";
+import Profile from "scenes/profilePage";
 
 function App() {
   const mode = useSelector((state) => state.mode);
@@ -33,7 +33,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/friends/:userId" element={<MyFreinds />} />
-                <Route path="/profile/:userId" element={<ProfilePage />} />
+                <Route path="/profile/:userId" element={<Profile />} />
               </Route>
             </Route>
             <Route element={<Layout2 />}>

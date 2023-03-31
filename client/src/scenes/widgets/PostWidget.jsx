@@ -56,12 +56,12 @@ const PostWidget = ({ post }) => {
   return (
     <Paper
       elevation={1}
-      sx={{
-        borderRadius: "0.75rem",
-      }}
-      bgcolor={palette.background.alt}
+      sx={(theme) => ({
+        borderRadius: "0.50rem",
+        backgroundColor: theme.palette.background.alt,
+      })}
     >
-      <Box m="2rem 0">
+      <Box mb="1rem">
         <Box>
           <Box p="1rem 1rem 0 1rem">
             <PostHead

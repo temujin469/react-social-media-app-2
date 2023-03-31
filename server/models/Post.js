@@ -11,7 +11,10 @@ const postSchema = mongoose.Schema(
       required: true,
     },
     description: String,
-    picturePath: String,
+    picturePath: {
+      type: String,
+      required: false,
+    },
     likes: [
       {
         type: mongoose.SchemaTypes.ObjectId,

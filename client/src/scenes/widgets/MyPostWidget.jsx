@@ -1,95 +1,60 @@
-import {
-  AttachFileOutlined,
-  ImageOutlined,
-  MicOutlined,
-  MoreHorizOutlined,
-} from "@mui/icons-material";
+import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
+import InsertEmoticonOutlinedIcon from "@mui/icons-material/InsertEmoticonOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import {
   Divider,
-  Typography,
   InputBase,
   useTheme,
-  Button,
   useMediaQuery,
+  Box,
+  Tabs,
+  Tab,
+  Skeleton,
 } from "@mui/material";
-import { getCurrentUser } from "api/users";
 import FlexBetween from "components/FlexBetween";
 import UserImage from "components/UserImage";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useQuery } from "react-query";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import useUser from "hooks/useUser";
 
-const MyPostWidget = () => {
+const MyPostWidget = ({ onChange, tab }) => {
   const { palette } = useTheme();
-  const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
-  const mediumMain = palette.neutral.mediumMain;
-  const medium = palette.neutral.medium;
-  const token = useSelector((state) => state.token);
+  const sm = useMediaQuery("(min-width: 760px)");
 
-  const { data: currrentUser } = useQuery(["user"], () =>
-    getCurrentUser({ token })
-  );
+  const { data: user, isLoading, error } = useUser();
 
   const navigate = useNavigate();
 
   return (
-    <WidgetWrapper>
+    <WidgetWrapper noRounded={!sm} padding="1rem 1rem 0">
       <FlexBetween gap="1rem">
-        <UserImage image={currrentUser?.picturePath} />
+        {isLoading ? (
+          <Skeleton variant="circular" width={60} height={60} />
+        ) : error ? (
+          <Skeleton variant="circular" width={60} height={60} />
+        ) : (
+          <UserImage image={user.picturePath} />
+        )}
         <InputBase
           placeholder="Юу бодож байна..."
           onClick={() => navigate("/addPost")}
-          // onChange={(e) => setPost(e.target.value)}
           sx={{
             backgroundColor: palette.neutral.light,
             borderRadius: "2rem",
             flex: "1",
-            padding: "1rem 2rem",
+            padding: "0 2rem",
+            height: "60px",
           }}
         />
       </FlexBetween>
       <Divider sx={{ margin: "1.25rem 0" }} />
-      <FlexBetween>
-        <FlexBetween gap="0.25rem">
-          <ImageOutlined sx={{ color: mediumMain }} />
-          <Typography
-            color={mediumMain}
-            sx={{ "&:hover": { cursor: "pointer", color: medium } }}
-          >
-            Зураг
-          </Typography>
-        </FlexBetween>
-
-        {isNonMobileScreens ? (
-          <>
-            <FlexBetween gap="0.25rem">
-              <AttachFileOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Хавсралт</Typography>
-            </FlexBetween>
-
-            <FlexBetween gap="0.25rem">
-              <MicOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Хоолой</Typography>
-            </FlexBetween>
-          </>
-        ) : (
-          <FlexBetween gap="0.25rem">
-            <MoreHorizOutlined sx={{ color: mediumMain }} />
-          </FlexBetween>
-        )}
-
-        <Button
-          // disabled={!post}
-          sx={{
-            color: palette.background.alt,
-            backgroundColor: palette.primary.main,
-            borderRadius: "3rem",
-          }}
-        >
-          Хуваалцах
-        </Button>
-      </FlexBetween>
+      <Box>
+        <Tabs value={tab} variant="fullWidth" onChange={onChange}>
+          <Tab icon={<ArticleOutlinedIcon />} label="Нийтлэл" id={0} />
+          <Tab icon={<InsertEmoticonOutlinedIcon />} label="Найз" id={1} />
+          <Tab icon={<BookmarkBorderOutlinedIcon />} label="Хадгалсан" id={2} />
+        </Tabs>
+      </Box>
     </WidgetWrapper>
   );
 };

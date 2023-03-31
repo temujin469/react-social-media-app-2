@@ -1,10 +1,16 @@
 import { Box, Skeleton } from "@mui/material";
 import { getAllPost } from "api/posts";
+import useToken from "hooks/useToken";
 import { useQuery } from "react-query";
 import PostWidget from "./PostWidget";
 
 const PostsWidget = () => {
-  const { data: posts, isLoading, error } = useQuery(["posts"], getAllPost);
+  const token = useToken()
+  const {
+    data: posts,
+    isLoading,
+    error,
+  } = useQuery(["posts"], () => getAllPost({ token }));
 
   // console.log(posts);
 
@@ -25,7 +31,7 @@ const PostsWidget = () => {
           </Skeleton>
         </div>
       ) : (
-        posts && posts.map((post) => <PostWidget post={post} />)
+        posts && posts.map((post) => <PostWidget key={post._id} post={post} />)
       )}
     </>
   );

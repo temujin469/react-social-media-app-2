@@ -2,14 +2,16 @@ import { Box, Drawer, Skeleton, Typography } from "@mui/material";
 import { getLikeUser } from "api/posts";
 import React from "react";
 import { useQuery } from "react-query";
+import { useSelector } from "react-redux";
 import UserInfo from "./UserInfo";
 
 function UsersListDrawer({ postId, open, setOpen }) {
+  const token = useSelector((state) => state.token);
   const {
     data: likeUsers,
     isLoading,
     error,
-  } = useQuery(["like", postId], () => getLikeUser({ postId }));
+  } = useQuery(["like", postId], () => getLikeUser({ postId, token }));
 
   return (
     <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)}>
@@ -29,6 +31,7 @@ function UsersListDrawer({ postId, open, setOpen }) {
         ) : (
           likeUsers?.map(({ firstName, lastName, picturePath, _id }) => (
             <UserInfo
+              key={_id}
               name={firstName}
               subtitle={lastName}
               userPicturePath={picturePath}

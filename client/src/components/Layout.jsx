@@ -5,19 +5,19 @@ import Navbar from "scenes/navbar";
 import BottomNav from "./BottomNav";
 
 function Layout() {
-  const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
+  const md = useMediaQuery("(min-width:900px)");
   const { palette } = useTheme();
 
   return (
     <Box bgcolor={palette.background.default}>
-      <Navbar isHomePage />
-      <Box width="100%" padding="2rem 6%">
+      <Navbar isHomePage position={md ? "sticky" : "static"} />
+      <Box width="100%">
         <div className="pb-10">
           <Outlet />
         </div>
         <Box
           sx={{
-            display: isNonMobileScreens ? "none" : "block",
+            display: md ? "none" : "block",
           }}
         >
           <BottomNav />

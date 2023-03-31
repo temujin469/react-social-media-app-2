@@ -4,10 +4,12 @@ import User from "../models/User.js";
 /* READ */
 export const getUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  const currentUserId = req.user.id;
   const user = await User.findById(id);
+  const isMy = Boolean(currentUserId === id);
   res.status(200).json({
     success: true,
-    data: user,
+    data: { ...user._doc, isMy },
   });
 });
 
@@ -38,7 +40,7 @@ export const getUserFriends = asyncHandler(async (req, res) => {
 /* UPDATE */
 export const addRemoveFriend = asyncHandler(async (req, res) => {
   const { friendId } = req.params;
-  const userId = req.params.id;
+  const userId = req.user.id;
   const user = await User.findById(userId);
   const friend = await User.findById(friendId);
 

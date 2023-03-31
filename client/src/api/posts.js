@@ -1,12 +1,23 @@
 import baseUrl from "utils/axios";
 
-export const getAllPost = async () => {
-  const res = await baseUrl.get(`/posts`);
+export const getAllPost = async ({ token }) => {
+  const res = await baseUrl.get(`/posts`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data.data;
 };
 
-export const getUserAllPost = async ({ userId }) => {
-  const res = await baseUrl.get(`/posts/${userId}/posts`);
+export const getUserAllPost = async ({ userId, token }) => {
+  const res = await baseUrl.get(`/posts/${userId}/posts`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data.data;
+};
+
+export const getFriendsPost = async ({ token }) => {
+  const res = await baseUrl.get(`/posts/friends`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data.data;
 };
 
@@ -24,7 +35,9 @@ export const patchLike = async ({ postId, token }) => {
   return res.data.data;
 };
 
-export const getLikeUser = async ({ postId }) => {
-  const res = await baseUrl.get(`/posts/${postId}/like`);
+export const getLikeUser = async ({ postId, token }) => {
+  const res = await baseUrl.get(`/posts/${postId}/like`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data.data;
 };

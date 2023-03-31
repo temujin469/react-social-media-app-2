@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import postRoutes from "./routes/posts.js";
 import errorHandler from "./middleware/errorHandler.js";
+import { verifyToken } from "./middleware/auth.js";
 // import User from "./models/User.js";
 // import Post from "./models/Post.js";
 // import { users, posts } from "./data/index.js";
@@ -34,7 +35,7 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 /* ROUTES */
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/posts", verifyToken, postRoutes);
 
 app.use(errorHandler);
 

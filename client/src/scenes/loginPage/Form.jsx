@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -6,6 +6,8 @@ import {
   useMediaQuery,
   Typography,
   useTheme,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -13,6 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state";
 import ImageUploader from "components/ImageUploader";
+import useSignUp from "hooks/useSignUp";
+import useSignIn from "hooks/useSignIn";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("шаардлагатай"),
@@ -45,66 +49,47 @@ const initialValuesLogin = {
 };
 
 const Form = () => {
-  const [pageType, setPageType] = useState("login");
+  const [pageType, setPageType] = useState("signIn");
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const isLogin = pageType === "login";
-  const isRegister = pageType === "register";
+  const isSignIn = pageType === "signIn";
+  const isSignUp = pageType === "signUp";
 
-  const register = async (values, onSubmitProps) => {
-    // this allows us to send form info with image
-    // console.log(values);
+  const signup = useSignUp();
+  const signin = useSignIn();
 
-    const savedUserResponse = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/api/v1/auth/register`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      }
-    );
-    const res = await savedUserResponse.json();
-    onSubmitProps.resetForm();
-
-    if (res.success) {
-      setPageType("login");
-    }
-  };
-
-  const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch(
-      `${process.env.REACT_APP_BASE_URL}/api/v1/auth/login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      }
-    );
-    const { data } = await loggedInResponse.json();
-    onSubmitProps.resetForm();
-    if (data) {
+  useEffect(() => {
+    if (pageType === "signIn" && signin.success) {
       dispatch(
         setLogin({
-          user: data,
-          token: data.token,
+          user: signin.user,
+          token: signin.user.token,
         })
       );
-      navigate("/");
+      return navigate("/");
     }
-  };
+    if (pageType === "signUp" && signup.success) {
+      return setPageType("signIn");
+    }
+  }, [signin.success, signup.success]);
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    if (isSignIn) {
+      await signin.signIn(values);
+    }
+    if (isSignUp) {
+      await signup.signUp(values);
+    }
+    onSubmitProps.resetForm();
   };
 
   return (
     <Formik
       onSubmit={handleFormSubmit}
-      initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
-      validationSchema={isLogin ? loginSchema : registerSchema}
+      initialValues={isSignUp ? initialValuesLogin : initialValuesRegister}
+      validationSchema={isSignIn ? loginSchema : registerSchema}
     >
       {({
         values,
@@ -125,7 +110,7 @@ const Form = () => {
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
           >
-            {isRegister && (
+            {isSignUp && (
               <>
                 <TextField
                   label="Нэр"
@@ -248,11 +233,11 @@ const Form = () => {
                 "&:hover": { color: palette.primary.main },
               }}
             >
-              {isLogin ? "Нэвтрэх" : "Бүртгүүлэх"}
+              {isSignIn ? "Нэвтрэх" : "Бүртгүүлэх"}
             </Button>
             <Typography
               onClick={() => {
-                setPageType(isLogin ? "register" : "login");
+                setPageType(isSignIn ? "signUp" : "signIn");
                 resetForm();
               }}
               sx={{
@@ -264,11 +249,17 @@ const Form = () => {
                 },
               }}
             >
-              {isLogin
+              {isSignIn
                 ? "Бүртгэлгүй юу? Энд бүртгүүлнэ үү"
                 : "Бүртгэлтэй юу? Энд нэвтэрнэ үү."}
             </Typography>
           </Box>
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={signin.isLoading || signup.isLoading}
+          >
+            <CircularProgress />
+          </Backdrop>
         </form>
       )}
     </Formik>

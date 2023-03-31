@@ -6,21 +6,21 @@ import {
   getPost,
   createPost,
   getLikeUsers,
+  getFriendsPosts,
 } from "../controllers/posts.js";
-import { verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // CREATE
-router.post("/", verifyToken, createPost);
-
+router.post("/", createPost);
 /* READ */
 router.get("/", getFeedPosts);
+router.get("/friends", getFriendsPosts);
 router.get("/:id", getPost);
 router.get("/:userId/posts", getUserPosts);
 router.get("/:id/like", getLikeUsers);
 
 /* UPDATE */
-router.patch("/:id/like", verifyToken, likePost);
+router.patch("/:id/like", likePost);
 
 export default router;

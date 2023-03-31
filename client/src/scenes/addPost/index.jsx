@@ -8,7 +8,9 @@ import {
   Box,
   Button,
   CircularProgress,
+  Grid,
   Paper,
+  Stack,
   TextField,
   useMediaQuery,
   useTheme,
@@ -18,6 +20,8 @@ import { useSelector } from "react-redux";
 import baseUrl from "utils/axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "scenes/navbar";
+import PostSettings from "./PostSettings";
+import WidgetWrapper from "components/WidgetWrapper";
 
 const AddPost = () => {
   const [image, setImage] = useState(null);
@@ -28,7 +32,7 @@ const AddPost = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
+  const xs = useMediaQuery("(min-width:600px)");
   const { palette } = useTheme();
 
   const queryClient = useQueryClient();
@@ -64,86 +68,84 @@ const AddPost = () => {
   };
 
   return (
-    <Box>
-      <Navbar title={"Нийтлэл оруулах"} />
-      <Box padding="2rem 6%">
-        <TextField
-          label="Гарчиг"
-          fullWidth
-          // onBlur={handleBlur}
-          onChange={(e) => setTitle(e.target.value)}
-          name="title"
-          // error={Boolean(touched.firstName) && Boolean(errors.firstName)}
-          // helperText={touched.firstName && errors.firstName}
-          sx={{ gridColumn: "span 2" }}
-        />
-        {/* <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
-        Шошго
-      </p>
-      <TagsInput
+    <Box backgroundColor={palette.background.alt} minHeight="100vh">
+      <Navbar title={"Нийтлэл оруулах"} position={xs ? "sticky" : "static"} />
+      <Box maxWidth="1000px" mx="auto" pb="70px" pt={xs ? "1rem" : "0"}>
+        <Grid container columns={{ xs: 1, sm: 12, md: 12 }}>
+          <Grid item xs={1} sm={8} md={7}>
+            <WidgetWrapper noRounded={!xs} mb="0">
+              <Stack gap="1rem" mb={xs ? "1rem" : "0"}>
+                <TextField
+                  label="Гарчиг"
+                  fullWidth
+                  onChange={(e) => setTitle(e.target.value)}
+                  name="title"
+                  // error={Boolean(touched.firstName) && Boolean(errors.firstName)}
+                  // helperText={touched.firstName && errors.firstName}
+                />
+                {/* <TagsInput
         value={tags}
         onChange={setTags}
         name="Шошго"
         placeHolder="Шошго"
       /> */}
-        <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
-          Зураг
-        </p>
-        <ImageUploader onChange={setImage} />
-        <p className="text-base my-3 font-medium sm:text-lg text-slate-700 dark:text-light-gray">
-          Агуулга
-        </p>
+                <ImageUploader onChange={setImage} />
+                <ReactQuill
+                  theme="snow"
+                  placeholder="Агуулга"
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, false] }],
+                      ["bold", "italic", "underline", "strike", "blockquote"],
+                      [
+                        { list: "ordered" },
+                        { list: "bullet" },
+                        { indent: "-1" },
+                        { indent: "+1" },
+                      ],
+                      ["link", "image"],
+                      ["clean"],
+                    ],
+                  }}
+                  value={description}
+                  onChange={setDescription}
+                />
+                <Paper
+                  elevation={3}
+                  sx={{
+                    position: xs ? "static" : "fixed",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    padding: "0.5rem",
+                  }}
+                >
+                  <Button
+                    disabled={!title}
+                    onClick={handlePost}
+                    size="large"
+                    sx={{
+                      color: "white",
+                      backgroundColor: palette.primary.main,
+                      width: xs ? "130px" : "100%",
+                    }}
+                  >
+                    Хуваалцах
+                  </Button>
+                </Paper>
+              </Stack>
+            </WidgetWrapper>
+          </Grid>
 
-        <div>
-          <ReactQuill
-            theme="snow"
-            modules={{
-              toolbar: [
-                [{ header: [1, 2, false] }],
-                ["bold", "italic", "underline", "strike", "blockquote"],
-                [
-                  { list: "ordered" },
-                  { list: "bullet" },
-                  { indent: "-1" },
-                  { indent: "+1" },
-                ],
-                ["link", "image"],
-                ["clean"],
-              ],
-            }}
-            value={description}
-            onChange={setDescription}
-          />
-        </div>
-        <Paper
-          elevation={3}
-          sx={{
-            position: "fixed",
-            bottom: "0",
-            left: "0",
-            right: "0",
-            height: "56px",
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-          <Box sx={{ padding: "1rem", position: "relative", flex: "1" }}>
-            <Button
-              disabled={!title}
-              onClick={handlePost}
-              sx={{
-                color: palette.background.alt,
-                backgroundColor: palette.primary.main,
-                borderRadius: "3rem",
-                width: isNonMobileScreens ? "130px" : "100%",
-              }}
-            >
-              Хуваалцах
-            </Button>
-          </Box>
-        </Paper>
+          <Grid item xs={1} sm={4} md={5} paddingLeft={xs ? "1rem" : "0"}>
+            <PostSettings />
+          </Grid>
+        </Grid>
       </Box>
+
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}

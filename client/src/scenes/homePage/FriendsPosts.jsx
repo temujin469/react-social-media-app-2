@@ -1,20 +1,17 @@
 import { Box, Skeleton } from "@mui/material";
-import { getUserAllPost } from "api/posts";
+import { getFriendsPost } from "api/posts";
+import useToken from "hooks/useToken";
+import React from "react";
 import { useQuery } from "react-query";
-import { useSelector } from "react-redux";
-import PostWidget from "./PostWidget";
+import PostWidget from "scenes/widgets/PostWidget";
 
-const UserPostsWidget = ({ userId }) => {
-  const token = useSelector((state) => state.token);
-
+function FriendsPosts() {
+  const token = useToken();
   const {
     data: posts,
     isLoading,
     error,
-  } = useQuery(["posts", userId], () => getUserAllPost({ userId, token }));
-
-  // console.log(posts);
-
+  } = useQuery(["posts", token], () => getFriendsPost({ token }));
   return (
     <>
       {isLoading && !error ? (
@@ -32,10 +29,10 @@ const UserPostsWidget = ({ userId }) => {
           </Skeleton>
         </div>
       ) : (
-        posts?.map((post) => <PostWidget key={post._id} post={post} />)
+        posts && posts.map((post) => <PostWidget key={post._id} post={post} />)
       )}
     </>
   );
-};
+}
 
-export default UserPostsWidget;
+export default FriendsPosts;

@@ -24,7 +24,7 @@ function PostDetail() {
             flexBasis={isNonMobileScreens ? "26%" : undefined}
             mt="2rem"
             position="sticky"
-            top="2rem"
+            top="86px"
             height="100vh"
           >
             <AdvertWidget />
