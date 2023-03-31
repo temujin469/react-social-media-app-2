@@ -8,11 +8,12 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
+import useUser from "hooks/useUser";
 
 const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
 
-  const currentUser = useSelector((state) => state.user);
+  const { data: user } = useUser();
   const token = useToken();
 
   const { palette } = useTheme();
@@ -24,9 +25,9 @@ const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
   const { data: friends } = useQuery(["friends", userId], () =>
     getFriends({ userId: userId, token })
   );
-  const isFriend = friends?.find((friend) => friend._id === currentUser._id);
+  const isFriend = friends?.find((friend) => friend._id === user?._id);
 
-  const isMyPost = userId === currentUser._id;
+  const isMyPost = userId === user?._id;
   const queryClient = useQueryClient();
 
   const patchFriendMutation = useMutation(patchFriend, {
@@ -50,11 +51,13 @@ const UserInfo = ({ userId, name, subtitle, userPicturePath }) => {
   });
 
   const handleFriend = () => {
-    patchFriendMutation.mutate({
-      userId: currentUser._id,
-      token,
-      friendId: userId,
-    });
+    if (user) {
+      return patchFriendMutation.mutate({
+        userId: user?._id,
+        token,
+        friendId: userId,
+      });
+    }
   };
 
   return (

@@ -6,11 +6,14 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
+import useToken from "hooks/useToken";
+import useUser from "hooks/useUser";
 
 const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const navigate = useNavigate();
-  const { _id: userId } = useSelector((state) => state.user);
-  const token = useSelector((state) => state.token);
+
+  const { data: user } = useUser();
+  const token = useToken();
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -34,7 +37,9 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   });
 
   const handleFriend = () => {
-    patchFriendMutation.mutate({ userId, token, friendId });
+    if (user) {
+      return patchFriendMutation.mutate({ userId: user?._id, token, friendId });
+    }
   };
 
   return (
