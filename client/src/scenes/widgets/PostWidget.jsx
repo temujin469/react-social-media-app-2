@@ -17,17 +17,18 @@ import { patchLike } from "api/posts";
 import FlexBetween from "components/FlexBetween";
 import PostHead from "components/UserInfo";
 import UsersListDrawer from "components/UsersListDrawer";
+import useToken from "hooks/useToken";
+import useUser from "hooks/useUser";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const PostWidget = ({ post }) => {
   // const [isComments, setIsComments] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
-  const token = useSelector((state) => state.token);
-  const userId = useSelector((state) => state.user._id);
-  const isLiked = post.likes?.find((like) => like === userId);
+  const token = useToken();
+  const { data: user } = useUser();
+  const isLiked = post.likes?.find((like) => like === user?._id);
   const likeCount = post.likes?.length;
   const navigate = useNavigate();
 

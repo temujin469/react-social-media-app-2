@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import PostWidget from "./PostWidget";
 
 const PostsWidget = () => {
-  const token = useToken()
+  const token = useToken();
   const {
     data: posts,
     isLoading,
